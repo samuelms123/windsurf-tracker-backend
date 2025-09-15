@@ -1,14 +1,10 @@
-from datetime import datetime
-from pathlib import Path
-import pandas as pd
+from fastapi import FastAPI
+from app.routes import strava_routes
 
-from services import fetch_service, strava_auth
+app = FastAPI()
 
+app.include_router(strava_routes.router)
 
-def main():
-    token: str = strava_service.get_access_token()
-    result = fetch_service.get_activity_data(token)
-    print(result)
-
-if __name__ == '__main__':
-    main()
+@app.get("/")
+def root():
+    return {"msg": "Windsurf Tracker Backend is running!"}
