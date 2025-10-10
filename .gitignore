@@ -1,1 +1,104 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# VSCode settings folder
+.vscode/
+
+# PyCharm settings folder
+.idea/
+
+# Python virtual environments
+.env/
+.venv/
+env/
+venv/
+ENV/
+
+# dotenv environment variables file
 .env
+
+# mypy cache
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Pydantic generated files (if any, rare)
+# (usually no need but safe to ignore)
+.pydantic/
+
+# Logs
+*.log
+
+# MacOS
+.DS_Store
+
+# System Files
+Thumbs.db
+
+# Pipenv files
+Pipfile.lock
+
+# pip cache
+pip-log.txt
+pip-delete-this-directory.txt
+
+# pyenv
+.python-version
+
+# celery beat schedule files
+celerybeat-schedule
+
+# C extensions
+*.so
+
+# FastAPI specific (if you generate any docs or migrations)
+# For example, Alembic migrations folder (if you use Alembic)
+alembic/versions/
+
+# Uvicorn reload files (temp)
+*.reload
