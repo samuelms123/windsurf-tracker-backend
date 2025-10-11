@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from app.routes import strava_routes, auth_routes, user_routes
 
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+
 app = FastAPI()
 
 app.include_router(strava_routes.router)

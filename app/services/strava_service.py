@@ -1,7 +1,7 @@
 import requests
 from app.services import endpoints
 from datetime import datetime
-from app import config
+from app.config import dotenv
 
 def get_activities(access_token:str) -> dict:
     headers:dict = {'Authorization': f'Authorization: Bearer {access_token}'}
@@ -17,7 +17,7 @@ def get_latest_activities(access_token:str) -> dict:
     after_timestamp = int(after_date.timestamp())
 
     # 2. Set headers
-    access_token = config.STRAVA_ACCESS_TOKEN
+    access_token = dotenv.STRAVA_ACCESS_TOKEN
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
