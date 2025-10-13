@@ -16,5 +16,5 @@ def individual_serial(user: User) -> dict:
         "first_name": user["first_name"],
         "last_name": user["last_name"],
         "username": user["username"],
-        "password": user["password"], ## hash later
+        "password": user["password"], 
     }

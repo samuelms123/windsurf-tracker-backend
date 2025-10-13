@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from app.schemas.user import User, list_serial
 from app.config.database import user_collection
 from bson import ObjectId
+from app.utils import hash
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -15,5 +16,7 @@ async def get_users():
 
 @router.post("")
 async def post_user(user: User):
+    hashedPass: str = hash.hashPassword(user.password)
+    user.password = hashedPass
     user_collection.insert_one(dict(user))
 
