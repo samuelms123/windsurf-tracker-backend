@@ -14,4 +14,4 @@ async def get_activities(access_token: str):
 async def get_streams(activity_id: int, access_token: str):
     stream = strava_service.get_stream_data(access_token, activity_id)
     ### Need to analyze data
-    return None
+    return stream

@@ -36,10 +36,18 @@ def get_latest_activities(access_token:str) -> dict:
     activities = response.json()
     return activities
 
-#STREAM_ENDPOINT.format(id=activity_id)
 def get_stream_data(access_token:str, activity_id:int) -> dict:
-    headers:dict = {'Authorization': f'Authorization: Bearer {access_token}'}
-    response = requests.get(endpoints.STREAM_ENDPOINT.format(id=activity_id), headers=headers)
+    headers:dict = {
+        'Authorization': f'Authorization: Bearer {access_token}'
+     }
+    
+    params:dict = {
+        "keys": "time,latlng,velocity_smooth,distance"
+    }
+    
+    url = endpoints.STREAM_ENDPOINT.format(id=activity_id)
+    
+    response = requests.get(url, headers=headers, params=params)
     response.raise_for_status()
     stream_data = response.json()
     return stream_data

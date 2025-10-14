@@ -11,7 +11,7 @@ def get_access_token() -> str:
     'f': 'json'
     }
     res = requests.post(endpoints.AUTH_ENDPOINT, data=payload, verify=False)
-    access_token = res.json()['access_token']
+    access_token = res.json()
     return access_token
 
 def refresh_access_token(refresh_token: str) -> str:
@@ -22,6 +22,8 @@ def refresh_access_token(refresh_token: str) -> str:
     'grant_type': "refresh_token",
     'f': 'json'
     }
+    
     res = requests.post(endpoints.AUTH_ENDPOINT, data=payload, verify=False)
-    access_token = res.json()['access_token']
+    
+    access_token = res.json()
     return access_token

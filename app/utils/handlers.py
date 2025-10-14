@@ -11,5 +11,9 @@ def add_exception_handlers(app):
             content={"error": exception.message}
         )
         
-    
-    ## Add more in same way.
+    @app.exception_handler(exceptions.InvalidTokenException)
+    async def invalid_token_handler(request: Request, exception: exceptions.InvalidTokenException):
+        return JSONResponse(
+            status_code=exception.status_code,
+            content={"error": exception.message}
+        )
