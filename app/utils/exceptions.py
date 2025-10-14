@@ -1,4 +1,6 @@
-class UserNotFoundException(Exception):
-    def __init__(self, message="User not found"):
-        super().__init__(message)
+from fastapi import status
 
+class LoginCredentialException(Exception):
+    def __init__(self):
+        self.message = "User/password incorrect"
+        self.status_code = status.HTTP_401_UNAUTHORIZED

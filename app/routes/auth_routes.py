@@ -4,7 +4,7 @@ from app.schemas.auth import AuthMe, LoginRequest
 from app.utils import hash
 from app.config.database import user_collection
 from bson import ObjectId
-from app.utils.exceptions import UserNotFoundException
+from app.utils.exceptions import LoginCredentialException
 from app.schemas.user import individual_serial
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -26,8 +26,7 @@ async def me(loginCredentials: LoginRequest):
     user = user_collection.find_one({"username": loginCredentials.username})
     
     if not user:
-        print("User not found in db")
-        raise UserNotFoundException()
+        raise LoginCredentialException()
     
     user_dict = individual_serial(user)
     
@@ -36,6 +35,5 @@ async def me(loginCredentials: LoginRequest):
         return user_dict
     
     else:
-        print("Unauthorized!")
-        ## handle properly
+        raise LoginCredentialException()
     
