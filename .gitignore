@@ -102,3 +102,5 @@ alembic/versions/
 
 # Uvicorn reload files (temp)
 *.reload
+
+.ruff_cache

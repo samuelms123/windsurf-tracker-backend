@@ -1,6 +1,7 @@
 # .venv\Scripts\activate
 # pip install -r requirements.txt
 # python -m pip install "pymongo[srv]"
+# ruff check . --fix
 
 fastapi
 uvicorn
@@ -9,3 +10,4 @@ pymongo
 python-dotenv
 pydantic
 argon2-cffi
+cryptography
