@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
 ### pydantic models for user
 
 class User(BaseModel):
@@ -6,6 +8,11 @@ class User(BaseModel):
     last_name: str
     username: str
     password: str
+    refresh_token: str
+    last_synced: Optional[datetime] = None
+    
+class Username(BaseModel):
+    username: str
     
 def list_serial(users) -> list:
     return[individual_serial(user) for user in users]
@@ -16,5 +23,6 @@ def individual_serial(user: User) -> dict:
         "first_name": user["first_name"],
         "last_name": user["last_name"],
         "username": user["username"],
-        "password": user["password"], ## hash later
+        "password": user["password"],
+        "refresh_token": user["refresh_token"]
     }
