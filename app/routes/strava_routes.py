@@ -35,7 +35,7 @@ async def sync_with_strava(access_token: str, username: str):
     
     
     # extract all the activity id:s (and other info if needed)
-    # straight from api:
+    # straight from activites api:
     # Elapsed time(s), average speed(m/s, maxspeed(m/s), avg heartrate, max heartrate, total distance(m), get location from coordinates
     activity_ids = [activity["id"] for activity in activities]
     
