@@ -1,6 +1,6 @@
 import pandas as pd
+import numpy as np
 import json
-### Data analysis logic
 
 class DataAnalysis:
     
@@ -26,17 +26,10 @@ class DataAnalysis:
         self.top_speed_rolling_avg(df)
         
         # Acceleration
-        self.top_acceleration(df, 1, 4)
-        #self.top_acceleration_test(df, 1, 4)
-        
-        
+        self.top_acceleration(df, 1, 10) # from 1 m/s to 10 m/s
+        self.top_acceleration(df, 1, 20)
         
         return self.results
-        # top speed during 5 sec intervals
-        # top speed during 10 sec intervals
-        # acceleration from small speed to 5.14 m/s
-        # acceleration from smaal speed to 10.3 m/s
-        # gybes amount
 
     def parse_stream(self, stream):
         data_dict = {}
@@ -54,85 +47,44 @@ class DataAnalysis:
     def top_acceleration(self, df: pd.DataFrame, start_speed, end_speed): # speed in m/s
         best_time = None
         i = 0
+        velocities = df['velocity_smooth'].values
+        times = df['time'].values
+        
         while i < (len(df)):
-            start_row = df.iloc[i]
-
-            if start_row['velocity_smooth'] >= start_speed:
-                start_time = start_row['time']
-                
+            
+            if velocities[i] >= start_speed:
+                start_time = times[i]
                 counter = 0
+                
                 for j in range(i + 1, len(df)):
-                    end_row = df.iloc[j]
+                    velocity = velocities[j]
                     
                     # check if the velocity falls under starting speed for more than 5s
-                    if end_row['velocity_smooth'] < start_speed:
+                    if velocity < start_speed:
                         counter += 1
                         if counter > 5:
+                            i = j
                             break # return back to i loop to search for a starting point
                     else:
                         counter = 0
                         
-                    if end_row['velocity_smooth'] >= end_speed:
-                        end_time = end_row['time']
+                    if velocity >= end_speed:
+                        end_time = times[j]
                         time = end_time - start_time
                         
                         if best_time is None or time < best_time:
                             best_time = time
                     
                         i = j
-                        while i < len(df) and df.iloc[i]['velocity_smooth'] > start_speed:
-                            i += 1
-                            
                         break
-                i += 1
+                while i < len(velocities) and velocities[i] > start_speed:
+                    i += 1
+                    
             else:
                 i += 1
         
         self.results[f'acceleration_to_{end_speed}'] = float(round(best_time, 2)) if best_time is not None else None
         
-        
-    def top_acceleration_test(self, df: pd.DataFrame, start_speed, end_speed):
-        best_time = None
-        i = 0
-        while i < len(df):
-            start_row = df.iloc[i]
-            v_start = start_row['velocity_smooth']
-
-            # We need to start BELOW end_speed, otherwise it's not a real acceleration segment
-            if start_speed <= v_start < end_speed:
-                start_time = start_row['time']
-                counter = 0
-
-                for j in range(i + 1, len(df)):
-                    end_row = df.iloc[j]
-                    v = end_row['velocity_smooth']
-
-                    # If speed drops below start_speed, reset
-                    if v < start_speed:
-                        counter += 1
-                        if counter > 5:
-                            break
-                    else:
-                        counter = 0
-
-                    if v >= end_speed:
-                        end_time = end_row['time']
-                        time_diff = end_time - start_time
-                        if best_time is None or time_diff < best_time:
-                            best_time = time_diff
-                        break
-
-                # Move i forward beyond this acceleration window
-                while i < len(df) and df.iloc[i]['velocity_smooth'] >= start_speed:
-                    i += 1
-            else:
-                i += 1
-
-        self.results[f'acceleration_to_{end_speed}'] = (
-            float(round(best_time, 2)) if best_time is not None else None
-        )
-                    
-            
 
     def top_speed_rolling_avg(self, df):
         df['rolling_avg_5rows'] = df['velocity_smooth'].rolling(window=5).mean()
@@ -143,10 +95,26 @@ class DataAnalysis:
         
         self.save_to_results('avg_5_s', avg_5_sec)
         self.save_to_results('avg_10_s', avg_10_sec)
+        
+    def calculate_bearing(self, lat1, lon1, lat2, lon2):
+        """
+        Calculate compass bearing between two GPS points.
+        """
+        d_lon = np.radians(lon2 - lon1)
+        lat1 = np.radians(lat1)
+        lat2 = np.radians(lat2)
 
+        x = np.sin(d_lon) * np.cos(lat2)
+        y = np.cos(lat1) * np.sin(lat2) - np.sin(lat1) * np.cos(lat2) * np.cos(d_lon)
 
-if __name__ == "__main__":
+        bearing = np.degrees(np.arctan2(x, y))
+        bearing = (bearing + 360) % 360  # Normalize to 0-360
+        return bearing
+            
+
+'''if __name__ == "__main__":
     da = DataAnalysis()
     data = da.load_stream_data('C:\Projects\Windsurf-Tracker\windsurf-tracker-backend\stream_example_response.json')
     print(da.analyze_data(data))
-    
+    df = da.parse_stream(data)
+   # print(df.head(50))'''
