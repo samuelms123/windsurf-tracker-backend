@@ -69,19 +69,25 @@ async def sync_activities(access_token: str, username: str):
     # get streamdata and analyze
 
     for activity in activities:
-        da = analysis_service.DataAnalysis()
-        data = get_stream_data(access_token, activity['id'])
-        print("Data fetched from strava")
-        result = da.analyze_data(data)
-        
-        result['date'] = activity['start_date']
-        result['elapsed_time'] = activity['elapsed_time']
-        result['average_speed'] = activity['average_speed']
-        result['max_speed'] = activity['max_speed']
-        result['total_distance'] = activity['distance']
-        # location from activity['start_latlng']
-        
-        results.append(result)
-        print("Data analyzed")
+        try:
+            
+            da = analysis_service.DataAnalysis()
+            data = get_stream_data(access_token, activity['id'])
+            print("Data fetched from strava")
+            result = da.analyze_data(data)
+            
+            result.update({
+            'date': activity['start_date'],
+            'elapsed_time': activity['elapsed_time'],
+            'average_speed': activity['average_speed'],
+            'max_speed': activity['max_speed'],
+            'total_distance': activity['distance'],
+            })
+            # location from activity['start_latlng']
+            
+            results.append(result)
+            print("Data analyzed")
+        except Exception as e:
+            print(f"Error processing activity with id: {activity['id']}")
     
     return results

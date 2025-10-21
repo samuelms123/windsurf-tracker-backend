@@ -34,7 +34,12 @@ class DataAnalysis:
         
         # Calculate time spend in each speed zone 
         self.time_spend_in_time_zones(df)
-
+        
+        # Calculate fastest x meters
+        self.fastest_meters(df, 100)
+        self.fastest_meters(df, 500)
+        self.fastest_meters(df, 1000)
+        
         return self.results
 
     def parse_stream(self, stream):
@@ -123,8 +128,23 @@ class DataAnalysis:
         self.save_to_results('max_speed_avg_10_s', avg_10_sec)
         
     
-    def fastest_meters(self, df, distance):
+    def fastest_meters(self, df, target_distance):
         distances = df['distance'].values
+        n = len(distances)
+        start_index = 0
+        best_time = None
+        
+        for end_index in range(n):
+            while start_index < end_index and distances[end_index] - distances[start_index] >= target_distance:
+                duration = end_index - start_index
+                if best_time is None or duration < best_time:
+                    best_time = duration
+                
+                start_index += 1
+                
+        self.results[f'fastest_{target_distance}'] = best_time
+
+        
         
         
     # not used, atleast yet
