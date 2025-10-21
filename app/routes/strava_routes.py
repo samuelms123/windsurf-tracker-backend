@@ -21,29 +21,38 @@ async def get_streams(activity_id: int, access_token: str):
 
 @router.get("/sync")
 async def sync_with_strava(access_token: str, username: str):
-    # check from database latest synced activity
-    latest_sync = models.get_latest_sync_date(username)
-    latest_sync = datetime(2025, 10, 2) # for testing
+    results = []
     
-    # fetch activites from strava API
+    # check from database latest synced activity
+    ##latest_sync = models.get_latest_sync_date(username)
+    ##latest_sync = datetime(2025, 9, 21) # for testing
+    latest_sync = None ## for testing
+    
+    # fetch activities from strava API
     activities = strava_service.get_latest_activities(access_token, latest_sync)
     
     # update latest sync in database
-    dbresult = models.set_latest_sync_date(username)
+    ##dbresult = models.set_latest_sync_date(username)
     
     # return if no new activities
     
     
-    # extract all the activity id:s (and other info if needed)
-    # straight from activites api:
-    # date, elapsed time(s), average speed(m/s, maxspeed(m/s), avg heartrate, max heartrate, total distance(m), get location from coordinates
-    activity_ids = [activity["id"] for activity in activities]
-    
     # get streamdata and analyze
-    analysis_results = []
-    for id in activity_ids:
-        data = strava_service.get_stream_data(access_token, id)
-        result = analysis_service.analyze_data(data)
-        analysis_results.append(result)
+
+    for activity in activities:
+        da = analysis_service.DataAnalysis()
+        data = strava_service.get_stream_data(access_token, activity['id'])
+        print("Data fetched from strava")
+        result = da.analyze_data(data)
+        
+        result['date'] = activity['start_date']
+        result['elapsed_time'] = activity['elapsed_time']
+        result['average_speed'] = activity['average_speed']
+        result['max_speed'] = activity['max_speed']
+        result['total_distance'] = activity['distance']
+        # location from activity['start_latlng']
+        
+        results.append(result)
+        print("Data analyzed")
     
-    return analysis_results
+    return results

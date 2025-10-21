@@ -8,6 +8,12 @@ class DataAnalysis:
     def __init__(self):
         self.results = {}
         
+        # Speed zones
+        self.idle_max_speed = 1.5
+        self.low_max_speed = 3.5
+        self.planing_entry_max_speed = 4.5
+        self.planing_max_speed = 8.0
+        
     
     def save_to_results(self, result_name: str, value):
         self.results[result_name] = value
@@ -19,19 +25,20 @@ class DataAnalysis:
         return stream
 
     def analyze_data(self, data_stream):
+        print("Started to analyze data")
         # Convert to pandas DataFrame
         df = self.parse_stream(data_stream)
         
         # Calculate rolling top speed averages
         self.top_speed_rolling_avg(df)
         
-        # Acceleration
-        self.top_acceleration(df, 1, 10) # from 1 m/s to 10 m/s
-        self.top_acceleration(df, 1, 20)
-        
+        # Calculate time spend in each speed zone 
+        self.time_spend_in_time_zones(df)
+
         return self.results
 
     def parse_stream(self, stream):
+        print("Parse stream started")
         data_dict = {}
         for stream in stream:
             stream_type = stream['type']
@@ -44,7 +51,41 @@ class DataAnalysis:
                 data_dict[stream_type] = stream_data
         return pd.DataFrame(data_dict)
     
+    def time_spend_in_time_zones(self, df: pd.DataFrame):
+        speed_zones = {
+            "idle": 0,
+            "low": 0,
+            "planing_entry": 0,
+            "planing": 0,
+            "blasting": 0
+        }
+        
+        velocities = df['velocity_smooth'].values
+        
+        for v in velocities:
+            if v < 0:
+                break
+            elif v < self.idle_max_speed:
+                speed_zones['idle'] += 1
+                
+            elif v < self.low_max_speed:
+                speed_zones['low'] += 1
+            
+            elif v < self.planing_entry_max_speed:
+                speed_zones['planing_entry'] += 1
+                
+            elif v < self.planing_max_speed:
+                speed_zones['planing'] += 1
+            
+            else:
+                speed_zones['blasting'] += 1
+        
+        self.results['speed_zones'] = speed_zones
+                
+                
+    ## this is a bottleneck dont use and do better one
     def top_acceleration(self, df: pd.DataFrame, start_speed, end_speed): # speed in m/s
+        print("started to calculate accelerations")
         best_time = None
         i = 0
         velocities = df['velocity_smooth'].values
@@ -87,19 +128,18 @@ class DataAnalysis:
         
 
     def top_speed_rolling_avg(self, df):
+        print("Started to calculate top speed")
         df['rolling_avg_5rows'] = df['velocity_smooth'].rolling(window=5).mean()
         df['rolling_avg_10rows'] = df['velocity_smooth'].rolling(window=10).mean()
         
         avg_5_sec = float(round(df['rolling_avg_5rows'].max(), 2))
         avg_10_sec = float(round(df['rolling_avg_10rows'].max(), 2))
         
-        self.save_to_results('avg_5_s', avg_5_sec)
-        self.save_to_results('avg_10_s', avg_10_sec)
+        self.save_to_results('max_speed_avg_5_s', avg_5_sec)
+        self.save_to_results('max_speed_avg_10_s', avg_10_sec)
         
+    # not used, atleast yet
     def calculate_bearing(self, lat1, lon1, lat2, lon2):
-        """
-        Calculate compass bearing between two GPS points.
-        """
         d_lon = np.radians(lon2 - lon1)
         lat1 = np.radians(lat1)
         lat2 = np.radians(lat2)
@@ -110,11 +150,14 @@ class DataAnalysis:
         bearing = np.degrees(np.arctan2(x, y))
         bearing = (bearing + 360) % 360  # Normalize to 0-360
         return bearing
-            
+ 
 
-'''if __name__ == "__main__":
+            
+'''
+if __name__ == "__main__":
     da = DataAnalysis()
     data = da.load_stream_data('C:\Projects\Windsurf-Tracker\windsurf-tracker-backend\stream_example_response.json')
-    print(da.analyze_data(data))
-    df = da.parse_stream(data)
-   # print(df.head(50))'''
+    result = da.analyze_data(data)
+    print(result)
+   # print(df.head(50))
+'''
