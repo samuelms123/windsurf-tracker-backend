@@ -104,3 +104,5 @@ alembic/versions/
 *.reload
 
 .ruff_cache
+
+stream_example_response.json
