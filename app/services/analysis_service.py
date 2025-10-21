@@ -34,7 +34,12 @@ class DataAnalysis:
         
         # Calculate time spend in each speed zone 
         self.time_spend_in_time_zones(df)
-
+        
+        # Calculate fastest x meters
+        self.fastest_meters(df, 100)
+        self.fastest_meters(df, 500)
+        self.fastest_meters(df, 1000)
+        
         return self.results
 
     def parse_stream(self, stream):
@@ -52,37 +57,21 @@ class DataAnalysis:
         return pd.DataFrame(data_dict)
     
     def time_spend_in_time_zones(self, df: pd.DataFrame):
-        speed_zones = {
-            "idle": 0,
-            "low": 0,
-            "planing_entry": 0,
-            "planing": 0,
-            "blasting": 0
-        }
+        bins = [
+            0,
+            self.idle_max_speed,
+            self.low_max_speed,
+            self.planing_entry_max_speed,
+            self.planing_max_speed,
+            np.inf
+        ]
         
-        velocities = df['velocity_smooth'].values
-        
-        for v in velocities:
-            if v < 0:
-                break
-            elif v < self.idle_max_speed:
-                speed_zones['idle'] += 1
-                
-            elif v < self.low_max_speed:
-                speed_zones['low'] += 1
-            
-            elif v < self.planing_entry_max_speed:
-                speed_zones['planing_entry'] += 1
-                
-            elif v < self.planing_max_speed:
-                speed_zones['planing'] += 1
-            
-            else:
-                speed_zones['blasting'] += 1
-        
-        self.results['speed_zones'] = speed_zones
-                
-                
+        labels = ['idle', 'low', 'planing_entry', 'planing', 'blasting']
+        zones = pd.cut(df['velocity_smooth'], bins=bins, labels=labels, include_lowest=True)
+        self.results['speed_zones'] = zones.value_counts().to_dict()
+
+    
+           
     ## this is a bottleneck dont use and do better one
     def top_acceleration(self, df: pd.DataFrame, start_speed, end_speed): # speed in m/s
         print("started to calculate accelerations")
@@ -138,6 +127,26 @@ class DataAnalysis:
         self.save_to_results('max_speed_avg_5_s', avg_5_sec)
         self.save_to_results('max_speed_avg_10_s', avg_10_sec)
         
+    
+    def fastest_meters(self, df, target_distance):
+        distances = df['distance'].values
+        n = len(distances)
+        start_index = 0
+        best_time = None
+        
+        for end_index in range(n):
+            while start_index < end_index and distances[end_index] - distances[start_index] >= target_distance:
+                duration = end_index - start_index
+                if best_time is None or duration < best_time:
+                    best_time = duration
+                
+                start_index += 1
+                
+        self.results[f'fastest_{target_distance}'] = best_time
+
+        
+        
+        
     # not used, atleast yet
     def calculate_bearing(self, lat1, lon1, lat2, lon2):
         d_lon = np.radians(lon2 - lon1)
@@ -153,11 +162,10 @@ class DataAnalysis:
  
 
             
-'''
+
 if __name__ == "__main__":
     da = DataAnalysis()
     data = da.load_stream_data('C:\Projects\Windsurf-Tracker\windsurf-tracker-backend\stream_example_response.json')
     result = da.analyze_data(data)
     print(result)
    # print(df.head(50))
-'''
