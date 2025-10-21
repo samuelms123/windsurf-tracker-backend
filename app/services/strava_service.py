@@ -2,6 +2,7 @@ import requests
 from app.services import endpoints
 from datetime import datetime
 from app.config import dotenv
+from app.services import analysis_service
 import time
 
 def get_activities(access_token:str) -> dict:
@@ -45,3 +46,42 @@ def get_stream_data(access_token:str, activity_id:int) -> dict:
     response.raise_for_status()
     stream_data = response.json()
     return stream_data
+
+
+async def sync_activities(access_token: str, username: str):
+    
+    results = []
+    
+    # check from database latest synced activity
+    ##latest_sync = models.get_latest_sync_date(username)
+    ##latest_sync = datetime(2025, 9, 21) # for testing
+    latest_sync = None ## for testing
+    
+    # fetch activities from strava API
+    activities = get_latest_activities(access_token, latest_sync)
+    
+    # update latest sync in database
+    ##dbresult = models.set_latest_sync_date(username)
+    
+    # return if no new activities
+    
+    
+    # get streamdata and analyze
+
+    for activity in activities:
+        da = analysis_service.DataAnalysis()
+        data = get_stream_data(access_token, activity['id'])
+        print("Data fetched from strava")
+        result = da.analyze_data(data)
+        
+        result['date'] = activity['start_date']
+        result['elapsed_time'] = activity['elapsed_time']
+        result['average_speed'] = activity['average_speed']
+        result['max_speed'] = activity['max_speed']
+        result['total_distance'] = activity['distance']
+        # location from activity['start_latlng']
+        
+        results.append(result)
+        print("Data analyzed")
+    
+    return results

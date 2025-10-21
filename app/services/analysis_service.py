@@ -62,7 +62,7 @@ class DataAnalysis:
         ]
         
         labels = ['idle', 'low', 'planing_entry', 'planing', 'blasting']
-        zones = pd.cut(df['velocity_smooth'], bins=bins, labels=labels)
+        zones = pd.cut(df['velocity_smooth'], bins=bins, labels=labels, include_lowest=True)
         self.results['speed_zones'] = zones.value_counts().to_dict()
 
     
