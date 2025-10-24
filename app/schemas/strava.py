@@ -1,3 +1,0 @@
-### pydantic models for strava
-
-    

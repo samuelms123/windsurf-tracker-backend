@@ -27,4 +27,3 @@ async def check_if_username_is_available(username: str):
     if user:
         return {"message": "unavailable"}
     return {"message": "available"}
-
