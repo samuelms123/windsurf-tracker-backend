@@ -13,3 +13,4 @@ argon2-cffi
 cryptography
 pandas
 numpy
+pytest
