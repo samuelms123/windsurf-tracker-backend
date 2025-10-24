@@ -1,6 +1,6 @@
 # Windsurf-Tracker API
 
-This repository contains the backend API built with **FastAPI**. It handles basic user management, but its main purpose is to fetch users windsurf activities from Strava API and analyze them to provide windsurf specific metrics.
+This repository contains the backend API built with **FastAPI**. It handles basic user management, but its main purpose is to fetch users windsurf activities & stream data from Strava API and analyze them to provide windsurf specific metrics.
 
 ## Tech Stack
 
