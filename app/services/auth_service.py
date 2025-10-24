@@ -1,5 +1,5 @@
 import requests
-from app.services import endpoints
+from app.utils import endpoints
 from app.config import dotenv
 
 def get_access_token() -> str:
