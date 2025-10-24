@@ -57,11 +57,8 @@ async def sync_activities(access_token: str, username: str):
     
     # get user and check from database latest synced activity
     user = await user_models.get_user(username)
-    ##latest_sync = datetime(2025, 9, 21) # for testing
-    #latest_sync = None ## for testing
     latest_sync = user['last_synced']
     user_id = user['_id']  
-    print(latest_sync)
     
     # fetch activities from strava API
     activities = get_latest_activities(access_token, latest_sync)
