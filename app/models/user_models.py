@@ -1,5 +1,6 @@
 from app.config.database import user_collection
 from datetime import datetime
+from app.utils.exceptions import UserNotFoundError
 
 async def get_user(username: str):
     user = user_collection.find_one(
@@ -7,7 +8,7 @@ async def get_user(username: str):
     )
     
     if not user:
-        return {f'message: no users found by username: "{username}" '}
+        raise UserNotFoundError
     
     return user
 
