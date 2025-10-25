@@ -8,7 +8,7 @@ class LoginCredentialError(Exception):
 
 class InvalidTokenError(Exception):
     def __init__(self):
-        self.message = "Invalid token"
+        self.message = "Invalid Strava access token"
         self.status_code = status.HTTP_401_UNAUTHORIZED
         
 

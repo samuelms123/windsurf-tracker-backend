@@ -6,7 +6,13 @@ from app.services import analysis_service
 from app.models import user_models, activity_models
 from datetime import datetime
 from app.schemas import activities as act_schema
+from app.utils.exceptions import InvalidTokenError
 import time
+
+def verify_strava_response(response, error: Exception):
+    if isinstance(response, dict) and response.get('message') == 'Authorization Error':
+        raise error
+    return response
 
 def get_activities(access_token:str) -> dict:
     headers:dict = {'Authorization': f'Authorization: Bearer {access_token}'}
@@ -77,6 +83,9 @@ async def sync_activities(access_token: str, username: str):
     
     # fetch activities from strava API
     activities = await get_latest_activities(access_token, latest_sync)
+    
+    # verify that token was valid
+    await verify_strava_response(activities, InvalidTokenError)
     
     # Filter windsurf activities
     windsurf_activities = await filter_windsurf_activities(activities)
