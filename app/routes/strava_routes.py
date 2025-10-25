@@ -1,7 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Security
 from app.services import strava_service
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from app.utils.exceptions import InvalidTokenError
 
 router = APIRouter(prefix="/strava", tags=["Strava"])
+bearer_scheme = HTTPBearer()
 '''
 @router.get("/activities")
 async def get_activities(access_token: str):
@@ -16,5 +19,12 @@ async def get_streams(activity_id: int, access_token: str):
 '''
 
 @router.get("/sync")
-async def sync_with_strava(access_token: str, username: str):
-    return await strava_service.sync_activities(access_token, username)
+async def sync_with_strava(
+    username: str,
+    credentials: HTTPAuthorizationCredentials = Security(bearer_scheme)
+):
+    token = credentials.credentials
+    if not token:
+        raise InvalidTokenError()
+    
+    return await strava_service.sync_activities(token, username)

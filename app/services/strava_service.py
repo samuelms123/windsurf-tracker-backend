@@ -15,7 +15,7 @@ def get_activities(access_token:str) -> dict:
     activity_data = response.json()
     return activity_data
 
-def get_latest_activities(access_token:str, last_synced: datetime) -> dict:
+async def get_latest_activities(access_token:str, last_synced: datetime) -> dict:
     params = {}
     
     if last_synced is not None:
@@ -34,7 +34,22 @@ def get_latest_activities(access_token:str, last_synced: datetime) -> dict:
     activities = response.json()
     return activities
 
-def get_stream_data(access_token:str, activity_id:int) -> dict:
+async def filter_windsurf_activities(activities):
+    windsurf_activities = []
+    for activity in activities:
+        
+        if (
+            activity.get("type", "").lower() == "windsurf"
+            or activity.get("sport_type", "").lower() == "windsurf"
+        ):
+            windsurf_activities.append(activity)
+            
+    return windsurf_activities
+            
+    
+    
+
+async def get_stream_data(access_token:str, activity_id:int) -> dict:
     headers:dict = {
         'Authorization': f'Authorization: Bearer {access_token}'
      }
@@ -61,21 +76,24 @@ async def sync_activities(access_token: str, username: str):
     user_id = user['_id']  
     
     # fetch activities from strava API
-    activities = get_latest_activities(access_token, latest_sync)
+    activities = await get_latest_activities(access_token, latest_sync)
+    
+    # Filter windsurf activities
+    windsurf_activities = await filter_windsurf_activities(activities)
     
     # update latest sync in database
     await user_models.set_latest_sync_date(username)
     
     # return if no new activities
-    if not activities:
-        return ({'message': 'No new activities detected'})
+    if not windsurf_activities:
+        return ({'message': 'No new windsurf activities detected'})
     
     # get streamdata and analyze
-    for activity in activities:
+    for activity in windsurf_activities:
         try:
             
             da = analysis_service.DataAnalysis()
-            data = get_stream_data(access_token, activity['id'])
+            data = await get_stream_data(access_token, activity['id'])
             print("Data fetched from strava")
             result = da.analyze_data(data)
             
