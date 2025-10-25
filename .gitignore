@@ -106,3 +106,4 @@ alembic/versions/
 .ruff_cache
 
 stream_example_response.json
+activity_example_response.json

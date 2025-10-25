@@ -7,9 +7,10 @@ from app.models import user_models, activity_models
 from datetime import datetime
 from app.schemas import activities as act_schema
 from app.utils.exceptions import InvalidTokenError
+from app.services import map_service
 import time
 
-def verify_strava_response(response, error: Exception):
+async def verify_strava_response(response, error: Exception):
     if isinstance(response, dict) and response.get('message') == 'Authorization Error':
         raise error
     return response
@@ -105,10 +106,12 @@ async def sync_activities(access_token: str, username: str):
             data = await get_stream_data(access_token, activity['id'])
             print("Data fetched from strava")
             result = da.analyze_data(data)
+            start_location = await map_service.get_location(activity["start_latlng"][0], activity["start_latlng"][1])
             
             result.update({
             'user_id': user_id,
             'date': activity['start_date'],
+            'start_location': start_location,
             'elapsed_time': activity['elapsed_time'],
             'average_speed': activity['average_speed'],
             'max_speed': activity['max_speed'],
