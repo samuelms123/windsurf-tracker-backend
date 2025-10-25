@@ -7,6 +7,7 @@ from app.models import user_models, activity_models
 from datetime import datetime
 from app.schemas import activities as act_schema
 from app.utils.exceptions import InvalidTokenError
+from fastapi import HTTPException
 from app.services import map_service
 import time
 
@@ -17,10 +18,16 @@ async def verify_strava_response(response, error: Exception):
 
 def get_activities(access_token:str) -> dict:
     headers:dict = {'Authorization': f'Authorization: Bearer {access_token}'}
-    response = requests.get(endpoints.ACTIVITIES_ENDPOINT, headers=headers)
-    response.raise_for_status()
-    activity_data = response.json()
-    return activity_data
+    try:
+        response = requests.get(endpoints.ACTIVITIES_ENDPOINT, headers=headers, timeout=30)
+        response.raise_for_status()
+        activity_data = response.json()
+        return activity_data
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="Request to Strava timed out")
+    
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Strava API error: {str(e)}")
 
 async def get_latest_activities(access_token:str, last_synced: datetime) -> dict:
     params = {}
@@ -35,12 +42,17 @@ async def get_latest_activities(access_token:str, last_synced: datetime) -> dict
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
-
-    response = requests.get("https://www.strava.com/api/v3/athlete/activities", headers=headers, params=params)
-
-    activities = response.json()
-    return activities
-
+    try:
+        response = requests.get("https://www.strava.com/api/v3/athlete/activities", headers=headers, params=params, timeout=30)
+        response.raise_for_status()
+        activities = response.json()
+        return activities
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="Request to Strava timed out")
+    
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Strava API error: {str(e)}")
+        
 async def filter_windsurf_activities(activities):
     windsurf_activities = []
     for activity in activities:
@@ -66,11 +78,16 @@ async def get_stream_data(access_token:str, activity_id:int) -> dict:
     }
     
     url = endpoints.STREAM_ENDPOINT.format(id=activity_id)
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=30)
+        response.raise_for_status()
+        stream_data = response.json()
+        return stream_data
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="Request to Strava timed out")
     
-    response = requests.get(url, headers=headers, params=params)
-    response.raise_for_status()
-    stream_data = response.json()
-    return stream_data
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Strava API error: {str(e)}")
 
 
 async def sync_activities(access_token: str, username: str):
