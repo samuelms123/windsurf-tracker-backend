@@ -5,7 +5,7 @@ geolocator = Nominatim(user_agent="windsurf_tracker")
 async def get_location(latitude, longitude):
         
     geolocator = Nominatim(user_agent="windsurf_tracker")
-    location = geolocator.reverse((60.187712, 25.13872), exactly_one=True)
+    location = geolocator.reverse((latitude, longitude), exactly_one=True)
     
     if not location:
         return None
