@@ -16,3 +16,9 @@ class UserNotFoundError(Exception):
     def __init__(self):
         self.message = "User not found"
         self.status_code = status.HTTP_404_NOT_FOUND
+        
+
+class UserAlreadyTakenError(Exception):
+    def __init__(self):
+        self.message = "Username already taken"
+        self.status_code = status.HTTP_409_CONFLICT
