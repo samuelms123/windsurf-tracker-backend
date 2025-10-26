@@ -9,6 +9,8 @@ class User(BaseModel):
     username: str
     password: str
     refresh_token: str
+    access_token: Optional[str] = None
+    access_expires_at: Optional[datetime] = None
     last_synced: Optional[datetime] = None
     
 class Username(BaseModel):
@@ -24,5 +26,8 @@ def individual_serial(user: User) -> dict:
         "last_name": user["last_name"],
         "username": user["username"],
         "password": user["password"],
-        "refresh_token": user["refresh_token"]
+        "refresh_token": user["refresh_token"],
+        "access_token": user["access_token"],
+        "access_expires_at": user["access_expires_at"],
+        "last_synced": user["last_synced"]
     }

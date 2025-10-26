@@ -3,11 +3,11 @@ from app.models import user_models
 from app.schemas.activities import serialize_activity
 ### Synced activity related DB logic
 
-async def save_analyzed_activities(activities: list[dict]):
+def save_analyzed_activities(activities: list[dict]):
     activity_collection.insert_many(activities) 
 
-async def get_analyzed_activities(username: str):
-    user = await user_models.get_user(username)
+def get_analyzed_activities(username: str):
+    user = user_models.get_user(username)
     user_id = user['_id']
     
     activities = list(activity_collection.find({"user_id": user_id}))

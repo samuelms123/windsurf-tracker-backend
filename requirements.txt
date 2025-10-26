@@ -14,3 +14,6 @@ cryptography
 pandas
 numpy
 pytest
+geopy
+pyjwt
+httpx

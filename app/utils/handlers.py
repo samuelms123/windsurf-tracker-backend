@@ -26,3 +26,10 @@ def add_exception_handlers(app):
             content={"error": exception.message}
             )
         
+    
+    @app.exception_handler(exceptions.UserAlreadyTakenError)
+    async def user_taken_handler(request: Request, exception: exceptions.UserAlreadyTakenError):
+        return JSONResponse(
+            status_code=exception.status_code,
+            content={"error": exception.message}
+            )
