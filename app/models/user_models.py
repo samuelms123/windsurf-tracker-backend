@@ -35,6 +35,17 @@ async def set_latest_sync_date(username: str):
     {"$set": {"last_synced": datetime.utcnow()}}
     )
     return result
-        
-    
-    
+
+def update_access_token(new_access_token: str, username: str, expires_at_unix):
+
+    updated_user = user_collection.find_one_and_update(
+        {"username": username},
+        {"$set": {"access_token": new_access_token,
+                  "access_expires_at": expires_at_unix
+                  }},
+    )
+
+    if not updated_user:
+        raise ValueError(f"User '{username}' not found.")
+
+    return updated_user

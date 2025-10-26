@@ -93,7 +93,6 @@ async def get_stream_data(access_token:str, activity_id:int) -> dict:
 async def sync_activities(access_token: str, username: str):
     
     results = []
-    
     # get user and check from database latest synced activity
     user = await user_models.get_user(username)
     latest_sync = user['last_synced']
