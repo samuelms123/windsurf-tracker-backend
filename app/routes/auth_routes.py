@@ -14,6 +14,11 @@ from app.models.user_models import get_user
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 bearer_scheme = HTTPBearer()
 
+@router.post("/strava")
+async def auth_strava_account_not_implemented_yet():
+    pass
+## authenticate endpoint to where strava redirects after user has logged in to their strava account
+
 @router.post("/me")
 async def refresh_jwt(credentials: HTTPAuthorizationCredentials = Security(bearer_scheme)):
     token = credentials.credentials
