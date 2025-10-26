@@ -9,4 +9,5 @@ This repository contains the backend API built with **FastAPI**. It handles basi
 - **Database:** MongoDB
 - **Authentication & Security:** Argon2, Cryptography, Oauth 2.0 (Strava)
 - **Data Handling:** Pandas, NumPy
-- **HTTP Requests:** Requests
+- **HTTP Requests:** HTTPX
+- **Testing:** Pytest
