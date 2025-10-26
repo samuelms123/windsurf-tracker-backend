@@ -22,12 +22,13 @@ async def refresh_jwt(credentials: HTTPAuthorizationCredentials = Security(beare
     if not username:
         raise InvalidTokenError
     
-    user = await get_user(username)
+    user = get_user(username)
     user_dict = individual_serial(user)
     user_dict.pop("password", None)
     user_dict.pop("refresh_token", None)
     user_dict.pop("access_token", None)
-    token = create_jwt_token_for_database(user_dict)
+    user_dict.pop("last_synced", None)
+    user_dict.pop("access_expires_at", None)
     
     return {"user": user_dict,
             "token": token
@@ -48,6 +49,8 @@ async def login(login_credentials: LoginRequest):
         user_dict.pop("password", None)
         user_dict.pop("refresh_token", None)
         user_dict.pop("access_token", None)
+        user_dict.pop("last_synced", None)
+        user_dict.pop("access_expires_at", None)
         
         token = create_jwt_token_for_database(user_dict)
         return {"user": user_dict,

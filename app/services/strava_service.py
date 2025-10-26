@@ -10,50 +10,38 @@ from app.utils.exceptions import InvalidTokenError
 from fastapi import HTTPException
 from app.services import map_service
 import time
+from httpx import AsyncClient
+import httpx
 
-async def verify_strava_response(response, error: Exception):
+def verify_strava_response(response, error: Exception):
     if isinstance(response, dict) and response.get('message') == 'Authorization Error':
         raise error
     return response
 
-def get_activities(access_token:str) -> dict:
-    headers:dict = {'Authorization': f'Authorization: Bearer {access_token}'}
-    try:
-        response = requests.get(endpoints.ACTIVITIES_ENDPOINT, headers=headers, timeout=30)
-        response.raise_for_status()
-        activity_data = response.json()
-        return activity_data
-    except requests.exceptions.Timeout:
-        raise HTTPException(status_code=504, detail="Request to Strava timed out")
-    
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"Strava API error: {str(e)}")
-
-async def get_latest_activities(access_token:str, last_synced: datetime) -> dict:
+async def get_latest_activities(access_token:str, last_synced: datetime) -> list[dict]:
     params = {}
     
     if last_synced is not None:
         after_timestamp = int(time.mktime(last_synced.timetuple()))
         params["after"] = after_timestamp
-
-    ## after_date = datetime(2025, 10, 2)  # YYYY, MM, DD
     
-    
+     
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
     try:
-        response = requests.get("https://www.strava.com/api/v3/athlete/activities", headers=headers, params=params, timeout=30)
-        response.raise_for_status()
-        activities = response.json()
-        return activities
-    except requests.exceptions.Timeout:
+        async with AsyncClient(timeout=30) as client:
+            response = await client.get("https://www.strava.com/api/v3/athlete/activities", headers=headers, params=params)
+            response.raise_for_status()
+            activities = response.json()
+            return activities
+    except httpx.RequestError:
         raise HTTPException(status_code=504, detail="Request to Strava timed out")
     
-    except requests.exceptions.RequestException as e:
+    except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=502, detail=f"Strava API error: {str(e)}")
         
-async def filter_windsurf_activities(activities):
+def filter_windsurf_activities(activities):
     windsurf_activities = []
     for activity in activities:
         
@@ -79,14 +67,16 @@ async def get_stream_data(access_token:str, activity_id:int) -> dict:
     
     url = endpoints.STREAM_ENDPOINT.format(id=activity_id)
     try:
-        response = requests.get(url, headers=headers, params=params, timeout=30)
-        response.raise_for_status()
-        stream_data = response.json()
-        return stream_data
-    except requests.exceptions.Timeout:
+        async with AsyncClient(timeout=30) as client:
+            
+            response = await client.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            stream_data = response.json()
+            return stream_data
+    except httpx.RequestError:
         raise HTTPException(status_code=504, detail="Request to Strava timed out")
     
-    except requests.exceptions.RequestException as e:
+    except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=502, detail=f"Strava API error: {str(e)}")
 
 
@@ -94,7 +84,7 @@ async def sync_activities(access_token: str, username: str):
     
     results = []
     # get user and check from database latest synced activity
-    user = await user_models.get_user(username)
+    user = user_models.get_user(username)
     latest_sync = user['last_synced']
     user_id = user['_id']  
     
@@ -102,13 +92,13 @@ async def sync_activities(access_token: str, username: str):
     activities = await get_latest_activities(access_token, latest_sync)
     
     # verify that token was valid
-    await verify_strava_response(activities, InvalidTokenError)
+    verify_strava_response(activities, InvalidTokenError)
     
     # Filter windsurf activities
-    windsurf_activities = await filter_windsurf_activities(activities)
+    windsurf_activities = filter_windsurf_activities(activities)
     
     # update latest sync in database
-    await user_models.set_latest_sync_date(username)
+    user_models.set_latest_sync_date(username)
     
     # return if no new activities
     if not windsurf_activities:
@@ -122,7 +112,7 @@ async def sync_activities(access_token: str, username: str):
             data = await get_stream_data(access_token, activity['id'])
             print("Data fetched from strava")
             result = da.analyze_data(data)
-            start_location = await map_service.get_location(activity["start_latlng"][0], activity["start_latlng"][1])
+            start_location = map_service.get_location(activity["start_latlng"][0], activity["start_latlng"][1])
             
             result.update({
             'user_id': user_id,
@@ -141,7 +131,7 @@ async def sync_activities(access_token: str, username: str):
             print(f"Error processing activity with id: {activity['id']}")
             
     # save analysis to database
-    await activity_models.save_analyzed_activities(results)
+    activity_models.save_analyzed_activities(results)
     
     for activity in results:
         act_schema.serialize_activity(activity)

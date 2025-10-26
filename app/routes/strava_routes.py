@@ -4,8 +4,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.utils.exceptions import InvalidTokenError
 from app.utils.security import decode_jwt_token, decrypt_token
 from app.models.user_models import get_user, update_access_token
-from app.schemas.user import individual_serial
 from app.services import auth_service
+from httpx import AsyncClient
 import time
 
 router = APIRouter(prefix="/strava", tags=["Strava"])
@@ -36,7 +36,7 @@ async def sync_with_strava(
     if not username:
         raise InvalidTokenError
     
-    user = await get_user(username)
+    user = get_user(username)
     access_token = user['access_token']
     expires_at = user['access_expires_at']
     

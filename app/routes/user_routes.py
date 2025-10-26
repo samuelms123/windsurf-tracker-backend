@@ -25,6 +25,6 @@ async def post_user_to_db(user: User):
     
 @router.get("/available")
 async def check_if_username_is_available(username: str):
-    user = await get_user(username)
+    user = get_user(username)
     if user:
         raise UserAlreadyTakenError

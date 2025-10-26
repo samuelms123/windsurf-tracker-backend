@@ -24,17 +24,17 @@ def verify_password(hashed_password: str, password: str):
 def encrypt_token(token: str):
     fernet = Fernet(os.getenv("REFRESH_TOKEN_SECRET_KEY"))
     return fernet.encrypt(token.encode()).decode()
+
    
 def decrypt_token(token: str):
     fernet = Fernet(os.getenv("REFRESH_TOKEN_SECRET_KEY"))
     return fernet.decrypt(token.encode()).decode()
 
-def create_jwt_token_for_database(data:dict):
-    to_encode = data.copy()
+def create_jwt_token_for_database(user_dict:dict):
     expire = datetime.utcnow() + timedelta(minutes=dotenv.JWT_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
+    user_dict.update({"exp": expire})
 
-    encoded_jwt = jwt.encode(to_encode, dotenv.JWT_SECRET_KEY, algorithm=dotenv.JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(user_dict, dotenv.JWT_SECRET_KEY, algorithm=dotenv.JWT_ALGORITHM)
     return encoded_jwt
 
 def decode_jwt_token(token: str, verify_exp: bool = True):
