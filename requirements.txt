@@ -5,15 +5,11 @@
 
 fastapi
 uvicorn
-requests
 pymongo
 python-dotenv
-pydantic
-argon2-cffi
 cryptography
 pandas
 numpy
 pytest
 geopy
-pyjwt
 httpx

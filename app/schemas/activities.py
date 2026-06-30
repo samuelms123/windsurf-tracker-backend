@@ -23,7 +23,7 @@ class Activity(BaseModel):
     
     
 def serialize_activity(activity):
-    activity['id'] = str(activity['_id'])
-    activity['user_id'] = str(activity['user_id'])
-    del activity['_id']
+    if '_id' in activity:
+        activity['id'] = str(activity['_id'])
+        del activity['_id']
     return activity
