@@ -35,7 +35,17 @@ class Activity(BaseModel):
     fastest_1000: int | None = Field(..., description="Fastest 1000m time (s)")
     total_distance: float = Field(..., description="Total distance (m)")
     speed_zones: SpeedZones = Field(..., description="Time spent in named speed zones (s)")
-    
+
+class Summary(BaseModel):
+    total_distance: int = Field(..., description="Total lifetime distance surfed (m)")
+    time_spent: int = Field(..., description="Total time surfed (s)")
+    time_spent_planing: int = Field(..., description="Total time spent in planing SpeedZone (s)")
+    favourite_spot: Location = Field(..., description="Favourite location (most sessions)")
+    top_speed: int = Field(..., description="All time stop speed (m/s)")
+    fastest_100: int | None = Field(..., description="All time fastest 100m (s)")
+    fastest_500: int | None = Field(..., description="All time fastest 500m (s)")
+    fastest_1000: int | None = Field(..., description="All time fastest 1000m (s)")
+
     
 def serialize_activity(activity):
     if '_id' in activity:
