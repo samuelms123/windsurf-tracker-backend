@@ -17,7 +17,7 @@ def save_analyzed_activities(activities: list[dict]):
         )
 
 def get_analyzed_activities():
-    activities = list(activity_collection.find)
+    activities = list(activity_collection.find())
     
     if not activities:
         return {'message': 'no activities found in database'}
