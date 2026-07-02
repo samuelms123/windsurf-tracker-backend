@@ -10,10 +10,9 @@ import httpx
 import app.models.metadata_models as metadata
 from typing import Optional
 
-def verify_strava_response(response, error: Exception):
+def verify_strava_response(response, error: Exception) -> None:
     if isinstance(response, dict) and response.get('message') == 'Authorization Error':
         raise error
-    return response
 
 async def get_latest_activities(access_token:str, last_synced: Optional[int]) -> list[dict]:
     params = {}
@@ -37,7 +36,7 @@ async def get_latest_activities(access_token:str, last_synced: Optional[int]) ->
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=502, detail=f"Strava API error: {str(e)}")
         
-def filter_windsurf_activities(activities):
+def filter_windsurf_activities(activities: list[dict]) -> list[dict]:
     windsurf_activities = []
     for activity in activities:
         
@@ -53,9 +52,9 @@ def filter_windsurf_activities(activities):
     
     
 
-async def get_stream_data(access_token:str, activity_id:int) -> dict:
+async def get_stream_data(access_token:str, activity_id:int) -> list[dict]:
     headers:dict = {
-        'Authorization': f'Authorization: Bearer {access_token}'
+        'Authorization': f'Bearer {access_token}'
      }
     
     params:dict = {
@@ -77,7 +76,7 @@ async def get_stream_data(access_token:str, activity_id:int) -> dict:
         raise HTTPException(status_code=502, detail=f"Strava API error: {str(e)}")
 
 
-async def sync_activities(access_token: str):
+async def sync_activities(access_token: str) -> list[dict]:
     
     results = []
     # get user and check from database latest synced activity
@@ -87,7 +86,7 @@ async def sync_activities(access_token: str):
     activities = await get_latest_activities(access_token, latest_sync)
     
     # verify that token was valid
-    verify_strava_response(activities, InvalidTokenError)
+    verify_strava_response(activities, InvalidTokenError())
     
     # Filter windsurf activities
     windsurf_activities = filter_windsurf_activities(activities)

@@ -2,7 +2,7 @@ from geopy.geocoders import Nominatim
 
 geolocator = Nominatim(user_agent="windsurf_tracker")
 
-def get_location(latitude, longitude):
+def get_location(latitude: float, longitude: float) -> dict:
         
     geolocator = Nominatim(user_agent="windsurf_tracker")
     location = geolocator.reverse((latitude, longitude), exactly_one=True)

@@ -22,7 +22,7 @@ async def sync_with_strava(
         raise InvalidAPIKeyError
     
     current_time = int(time.time())
-    token: dict = metadata.get_access_token()
+    token = metadata.get_access_token()
     access_token = token.get("access_token")
     
     if not token.get("expires_at") or current_time >= token.get("expires_at"):
