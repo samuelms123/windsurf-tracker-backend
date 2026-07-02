@@ -21,7 +21,7 @@ class Location(BaseModel):
     country: str | None
     
 class Activity(BaseModel):
-    id: str = Field(..., description="Strava activity ID")
+    id: str = Field(..., description="Strava activity ID acting as the primary key")
     date: datetime = Field(..., description="Activity date")
     start_location: Location = Field(..., description="Activity start location")
     elapsed_time: int = Field(..., description="Activity duration (s)")
@@ -49,6 +49,5 @@ class Summary(BaseModel):
     
 def serialize_activity(activity):
     if '_id' in activity:
-        activity['id'] = str(activity['_id'])
-        del activity['_id']
+        activity['id'] = activity['_id']
     return activity

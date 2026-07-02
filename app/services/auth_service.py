@@ -1,23 +1,17 @@
-import httpx
-from httpx import AsyncClient
-from app.utils import endpoints
-from app.config import dotenv
-from fastapi import HTTPException
+import time
+from app.clients.strava_client import refresh_access_token
+from app.models.metadata_models import get_access_token, update_access_token
 
-async def refresh_access_token() -> str:
-    payload:dict = {
-    'client_id': dotenv.STRAVA_CLIENT_ID,
-    'client_secret': dotenv.STRAVA_CLIENT_SECRET,
-    'refresh_token': dotenv.STRAVA_REFRESH_TOKEN,
-    'grant_type': "refresh_token",
-    }
-    try:
-        async with AsyncClient(timeout=30) as client:
-            res = await client.post(endpoints.AUTH_ENDPOINT, data=payload)
-            res.raise_for_status() 
-            return res.json()
-    except httpx.RequestError:
-        raise HTTPException(status_code=504, detail="Request to Strava timed out")
-
-    except httpx.HTTPStatusError as e:
-        raise HTTPException(status_code=502, detail=f"Strava API error: {str(e)}")
+async def get_valid_access_token() -> str:
+    current_time = int(time.time())
+    token = get_access_token()
+    access_token = token.get("access_token")
+    
+    if not token.get("expires_at") or current_time >= token.get("expires_at"):
+        response = await refresh_access_token()
+        new_access_token = response['access_token']
+        expires_at = response['expires_at']
+        access_token = new_access_token
+        update_access_token(new_access_token, expires_at)
+    
+    return access_token
