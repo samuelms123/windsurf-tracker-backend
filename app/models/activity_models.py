@@ -27,3 +27,6 @@ def get_analyzed_activities():
         serialize_activity(activity)
         
     return activities
+
+def get_activity_summary():
+    pass
