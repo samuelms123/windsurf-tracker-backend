@@ -1,28 +1,25 @@
 from app.utils import endpoints
-from datetime import datetime
 from app.services import analysis_service
 from app.models import activity_models
-from datetime import datetime
 from app.schemas import activities as act_schema
 from app.utils.exceptions import InvalidTokenError
 from fastapi import HTTPException
 from app.services import map_service
-import time
 from httpx import AsyncClient
 import httpx
-import models.metadata_models as metadata
+import app.models.metadata_models as metadata
+from typing import Optional
 
 def verify_strava_response(response, error: Exception):
     if isinstance(response, dict) and response.get('message') == 'Authorization Error':
         raise error
     return response
 
-async def get_latest_activities(access_token:str, last_synced: datetime) -> list[dict]:
+async def get_latest_activities(access_token:str, last_synced: Optional[int]) -> list[dict]:
     params = {}
     
     if last_synced is not None:
-        after_timestamp = int(time.mktime(last_synced.timetuple()))
-        params["after"] = after_timestamp
+        params["after"] = last_synced
     
      
     headers = {
@@ -49,6 +46,7 @@ def filter_windsurf_activities(activities):
             or activity.get("sport_type", "").lower() == "windsurf"
         ):
             windsurf_activities.append(activity)
+
             
     return windsurf_activities
             
@@ -112,6 +110,7 @@ async def sync_activities(access_token: str):
             start_location = map_service.get_location(activity["start_latlng"][0], activity["start_latlng"][1])
             
             result.update({
+            'id': activity['id'],
             'date': activity['start_date'],
             'start_location': start_location,
             'elapsed_time': activity['elapsed_time'],
@@ -126,8 +125,8 @@ async def sync_activities(access_token: str):
         except Exception as e:
             print(f"Error processing activity with id: {activity['id']}")
             
-    # save analysis to database
-    activity_models.save_analyzed_activities(results)
+        # save analysis to database
+        activity_models.save_analyzed_activities(results)
     
     for activity in results:
         act_schema.serialize_activity(activity)

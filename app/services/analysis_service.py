@@ -57,6 +57,7 @@ class DataAnalysis:
         return pd.DataFrame(data_dict)
     
     def time_spend_in_time_zones(self, df: pd.DataFrame):
+        print("calculation: time_spend_in_time_zones")
         bins = [
             0,
             self.idle_max_speed,
@@ -120,15 +121,19 @@ class DataAnalysis:
         print("Started to calculate top speed")
         df['rolling_avg_5rows'] = df['velocity_smooth'].rolling(window=5).mean()
         df['rolling_avg_10rows'] = df['velocity_smooth'].rolling(window=10).mean()
+
+        max_5 = df['rolling_avg_5rows'].max()
+        max_10 = df['rolling_avg_10rows'].max()
         
-        avg_5_sec = float(round(df['rolling_avg_5rows'].max(), 2))
-        avg_10_sec = float(round(df['rolling_avg_10rows'].max(), 2))
+        avg_5_sec = float(round(max_5, 2)) if not pd.isna(max_5) else 0.0
+        avg_10_sec = float(round(max_10, 2)) if not pd.isna(max_10) else 0.0
         
         self.save_to_results('max_speed_avg_5_s', avg_5_sec)
         self.save_to_results('max_speed_avg_10_s', avg_10_sec)
         
     
     def fastest_meters(self, df, target_distance):
+        print("calculation: fastest meters")
         distances = df['distance'].values
         n = len(distances)
         start_index = 0
@@ -165,7 +170,7 @@ class DataAnalysis:
 
 if __name__ == "__main__":
     da = DataAnalysis()
-    data = da.load_stream_data('C:\Projects\Windsurf-Tracker\windsurf-tracker-backend\stream_example_response.json')
+    data = da.load_stream_data('/home/samuel/windsurf/windsurf-tracker-backend/stream_18997912984.json')
     result = da.analyze_data(data)
     print(result)
    # print(df.head(50))

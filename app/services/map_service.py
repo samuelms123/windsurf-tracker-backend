@@ -6,23 +6,29 @@ def get_location(latitude, longitude):
         
     geolocator = Nominatim(user_agent="windsurf_tracker")
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
-    
+
     if not location:
         return None
     
-    address = location.address
-    address_list = [part.strip() for part in address.split(",")]
-    
+    ad: dict = location.raw['address']
 
     return {
-        "street": address_list[0],
-        "neighborhood": address_list[1],
-        "district": address_list[2],
-        "subdistrict": address_list[3],
-        "city": address_list[4],
-        "metropolitan_area": address_list[5],
-        "region": address_list[6],
-        "mainland": address_list[7],
-        "postal_code": address_list[8],
-        "country": address_list[9], 
+        "street": ad.get("road"),
+        "neighborhood": ad.get("quarter"),
+        "suburb": ad.get("suburb"),
+        "city_district": ad.get("city_district"),
+        "city": ad.get("city"),
+        "municipality": ad.get("municipality"),
+        "region": ad.get("state"),
+        "area": ad.get("region"),
+        "postal_code": ad.get("postcode"),
+        "country": ad.get("country"),
     }
+
+#            60.187712,
+#            25.13872
+
+if __name__ == "__main__":
+
+    #print(get_location(61.211385, 25.716855))
+    print(get_location(60.187712,25.13872))

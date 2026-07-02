@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Security
 from app.services import strava_service
-from app.utils.security import decrypt_token
-import models.metadata_models as metadata
+import app.models.metadata_models as metadata
 from app.services import auth_service
 import time
 from app.utils.exceptions import InvalidAPIKeyError
@@ -24,18 +23,19 @@ async def sync_with_strava(
     
     current_time = int(time.time())
     token: dict = metadata.get_access_token()
+    access_token = token.get("access_token")
     
-    if not token.expires_at or current_time >= token.expires_at:
-        encrypted_refresh_token = token.token
-        refresh_token = decrypt_token(encrypted_refresh_token)
-        response = await auth_service.refresh_access_token(refresh_token)
-        access_token = response['access_token']
+    if not token.get("expires_at") or current_time >= token.get("expires_at"):
+        response = await auth_service.refresh_access_token()
+        new_access_token = response['access_token']
         expires_at = response['expires_at']
-        metadata.update_access_token(access_token, expires_at)
+        access_token = new_access_token
+        metadata.update_access_token(new_access_token, expires_at)
     
         
         
     return await strava_service.sync_activities(access_token)
+
 
 '''
 @router.get("/test_refresh")

@@ -1,13 +1,10 @@
-# .venv\Scripts\activate
 # pip install -r requirements.txt
-# python -m pip install "pymongo[srv]"
-# ruff check . --fix
+# uvicorn app.main:app --reload
 
 fastapi
 uvicorn
 pymongo
 python-dotenv
-cryptography
 pandas
 numpy
 pytest

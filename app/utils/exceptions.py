@@ -11,4 +11,3 @@ class InvalidAPIKeyError(Exception):
     def __init__(self):
         self.message = "Invalid API key"
         self.status_code = status.HTTP_401_UNAUTHORIZED
-        

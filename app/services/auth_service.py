@@ -4,11 +4,11 @@ from app.utils import endpoints
 from app.config import dotenv
 from fastapi import HTTPException
 
-async def refresh_access_token(refresh_token: str) -> str:
+async def refresh_access_token() -> str:
     payload:dict = {
     'client_id': dotenv.STRAVA_CLIENT_ID,
     'client_secret': dotenv.STRAVA_CLIENT_SECRET,
-    'refresh_token': refresh_token,
+    'refresh_token': dotenv.STRAVA_REFRESH_TOKEN,
     'grant_type': "refresh_token",
     }
     try:
