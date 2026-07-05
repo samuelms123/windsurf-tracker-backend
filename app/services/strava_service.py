@@ -1,6 +1,6 @@
 
-from app.services import analysis_service
-from app.models import activity_models
+from app.services import analysis_service, summary_service
+from app.models import activity_models, summary_models
 from app.schemas import activities as act_schema
 from app.utils.exceptions import InvalidTokenError
 from app.clients.strava_client import get_latest_activities, verify_strava_response, get_stream_data
@@ -41,7 +41,10 @@ async def sync_activities(access_token: str) -> list[dict]:
     
     # return if no new activities
     if not windsurf_activities:
-        return []
+        return {
+        "activities": [],
+        "updated_summary": None
+    }
     
     # get streamdata and analyze
     for activity in windsurf_activities:
@@ -69,11 +72,17 @@ async def sync_activities(access_token: str) -> list[dict]:
         except Exception as e:
             print(f"Error processing activity with id: {activity['id']}")
             
-        # save analysis to database
-        activity_models.save_analyzed_activities(results)
+    # save analysis to database
+    activity_models.save_analyzed_activities(results)
+
+    summary = summary_service.calculate_summary(results)
+    updated_summary = summary_models.update_summary(summary)
     
     for activity in results:
         act_schema.serialize_activity(activity)
     
     
-    return results
+    return {
+        "activities": results,
+        "updated_summary": updated_summary
+    }

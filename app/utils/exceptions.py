@@ -11,3 +11,9 @@ class InvalidAPIKeyError(Exception):
     def __init__(self):
         self.message = "Invalid API key"
         self.status_code = status.HTTP_401_UNAUTHORIZED
+
+
+class EmptySummaryError(Exception):
+    def __init__(self):
+        self.message = "Summary is empty"
+        self.status_code = status.HTTP_404_NOT_FOUND

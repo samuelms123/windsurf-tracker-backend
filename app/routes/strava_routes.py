@@ -3,7 +3,7 @@ from app.services import strava_service
 from app.utils.exceptions import InvalidAPIKeyError
 from fastapi.security import APIKeyHeader
 from app.config import dotenv
-from app.schemas.activities import Activity
+from app.schemas.activities import Sync
 from app.services.auth_service import get_valid_access_token
 
 router = APIRouter(prefix="/strava", tags=["Strava"])
@@ -12,7 +12,7 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=True)
 
 
 # Fetch activities from Strava 
-@router.get("/sync", response_model=list[Activity])
+@router.get("/sync", response_model=Sync)
 async def sync_with_strava(
     api_key: str = Security(api_key_header)
 ):

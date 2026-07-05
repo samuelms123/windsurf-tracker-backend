@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Security
 from fastapi.security import APIKeyHeader
-from app.models import activity_models
+from app.models import activity_models, summary_models
 from app.config import dotenv
-from app.utils.exceptions import InvalidAPIKeyError
+from app.utils.exceptions import InvalidAPIKeyError, EmptySummaryError
 from app.schemas.activities import Activity, Summary
 
 router = APIRouter(prefix="/activities", tags=["Activities"])
@@ -26,5 +26,10 @@ async def get_activity_summary(
     if api_key != dotenv.HOME_LAB_API_KEY:
         raise InvalidAPIKeyError
     
-    return activity_models.get_activity_summary()
+    summary = summary_models.get_summary()
+
+    if summary is None:
+        raise EmptySummaryError
+    
+    return summary
     

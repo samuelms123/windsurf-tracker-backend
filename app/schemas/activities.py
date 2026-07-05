@@ -37,14 +37,19 @@ class Activity(BaseModel):
     speed_zones: SpeedZones = Field(..., description="Time spent in named speed zones (s)")
 
 class Summary(BaseModel):
-    total_distance: int = Field(..., description="Total lifetime distance surfed (m)")
-    time_spent: int = Field(..., description="Total time surfed (s)")
-    time_spent_planing: int = Field(..., description="Total time spent in planing SpeedZone (s)")
-    favourite_spot: Location = Field(..., description="Favourite location (most sessions)")
-    top_speed: int = Field(..., description="All time stop speed (m/s)")
-    fastest_100: int | None = Field(..., description="All time fastest 100m (s)")
-    fastest_500: int | None = Field(..., description="All time fastest 500m (s)")
-    fastest_1000: int | None = Field(..., description="All time fastest 1000m (s)")
+    total_distance: int | None = Field(..., description="Total lifetime distance surfed (m)")
+    time_spent: int | None = Field(..., description="Total time surfed (s)")
+    time_spent_planing: int | None = Field(..., description="Total time spent in planing SpeedZone (s)")
+    total_session_count:int | None = Field(..., description="Total lifetime sessions")
+    top_speed: float = Field(..., description="All time stop speed (m/s)")
+    fastest_100: float | None = Field(..., description="All time fastest 100m (s)")
+    fastest_500: float | None = Field(..., description="All time fastest 500m (s)")
+    fastest_1000: float | None = Field(..., description="All time fastest 1000m (s)")
+
+
+class Sync(BaseModel):
+    activities: list[Activity] = Field(..., description="List of activities synced")
+    updated_summary: Summary | None = Field(..., description="Updated summary")
 
     
 def serialize_activity(activity):

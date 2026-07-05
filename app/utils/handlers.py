@@ -17,4 +17,11 @@ def add_exception_handlers(app):
             status_code=exception.status_code,
             content={"error": exception.message}
         )
+    
+    @app.exception_handler(exceptions.EmptySummaryError)
+    async def invalid_apikey_handler(request: Request, exception: exceptions.EmptySummaryError):
+        return JSONResponse(
+            status_code=exception.status_code,
+            content={"error": exception.message}
+        )
         
