@@ -1,23 +1,35 @@
 from fastapi import APIRouter, Security
-from app.models import activity_models
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.utils.exceptions import InvalidTokenError
-from app.utils.security import decode_jwt_token
+from fastapi.security import APIKeyHeader
+from app.models import activity_models, summary_models
+from app.config import dotenv
+from app.utils.exceptions import InvalidAPIKeyError, EmptySummaryError
+from app.schemas.activities import Activity, Summary
 
 router = APIRouter(prefix="/activities", tags=["Activities"])
-bearer_scheme = HTTPBearer()
 
-@router.get("")
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=True)
+
+@router.get("", response_model=list[Activity])
 async def get_synced_activities(
-    credentials: HTTPAuthorizationCredentials = Security(bearer_scheme)
+    api_key: str = Security(api_key_header)
 ):
-    jwt_token = credentials.credentials
-    if not jwt_token:
-        raise InvalidTokenError()
-    payload = decode_jwt_token(jwt_token)
+    if api_key != dotenv.HOME_LAB_API_KEY:
+        raise InvalidAPIKeyError
     
-    username = payload.get("username")
-    if not username:
-        raise InvalidTokenError
+    return activity_models.get_analyzed_activities()
+
+
+@router.get("/summary", response_model=Summary)
+async def get_activity_summary(
+        api_key: str = Security(api_key_header)
+):
+    if api_key != dotenv.HOME_LAB_API_KEY:
+        raise InvalidAPIKeyError
     
-    return activity_models.get_analyzed_activities(username)
+    summary = summary_models.get_summary()
+
+    if summary is None:
+        raise EmptySummaryError
+    
+    return summary
+    

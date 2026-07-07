@@ -1,19 +1,32 @@
 from app.config.database import activity_collection
-from app.models import user_models
 from app.schemas.activities import serialize_activity
 ### Synced activity related DB logic
 
 def save_analyzed_activities(activities: list[dict]):
-    activity_collection.insert_many(activities) 
-
-def get_analyzed_activities(username: str):
-    user = user_models.get_user(username)
-    user_id = user['_id']
+    if not activities:
+        return
     
-    activities = list(activity_collection.find({"user_id": user_id}))
+    for activity in activities:
+        strava_id = activity.get("strava_id")
+        
+        if not strava_id:
+            print(f"Skipping an activity because it is missing an 'id' key.")
+            continue
+
+        activity["_id"] = str(strava_id)
+            
+        activity_collection.update_one(
+            {"_id": activity["_id"]}, 
+            {"$set": activity}, 
+            upsert=True
+        )
+
+def get_analyzed_activities():
+    activities = list(activity_collection.find())
     
     if not activities:
-        return {'message: no activities found in database'}
+        return []
+    
     
     for activity in activities:
         serialize_activity(activity)
