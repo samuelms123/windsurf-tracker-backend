@@ -12,7 +12,7 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=True)
 
 
 # Fetch activities from Strava 
-@router.get("/sync", response_model=Sync)
+@router.post("/sync", response_model=Sync)
 async def sync_with_strava(
     api_key: str = Security(api_key_header)
 ):
