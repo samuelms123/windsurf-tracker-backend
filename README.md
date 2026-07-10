@@ -12,10 +12,10 @@ Please check out the project repositories here:
 * **[FastAPI](https://fastapi.tiangolo.com/)** Deployed locally inside an isolated Proxmox LXC.
 * **[Uvicorn](https://www.uvicorn.org/)** – Deployed locally inside an isolated Proxmox LXC.
 * **[MongoDB](https://www.mongodb.com/)** – Hosted within a dedicated Proxmox VM.
-* **[Pandas](https://pandas.pydata.org/) & [NumPy](https://numpy.org/)**
+* **[Pandas](https://pandas.pydata.org/) & [NumPy](https://numpy.org/)** - Data analysis
 * **[HTTPX](https://www.python-httpx.org/)**
 * **[Pytest](https://docs.pytest.org/)**
 
 ### Security & Authentication
-* **Single-User Architecture** – Relies on an isolated **WireGuard VPN** server (deployed via PiVPN on a Proxmox LXC) as the primary cryptographic gateway, paired with a custom `X-API-Key` header verification.
+* **Single-User Architecture** – Relies on an isolated **WireGuard VPN** server (deployed via PiVPN on a Proxmox LXC) as the primary cryptographic gateway.
 * **Multi-User Architecture** *(Archived in `multi-user` branch)* – Implements full OAuth 2.0 (Strava) integration, standard JWT authentication, Argon2 password hashing, and Fernet symmetric encryption for long-lived refresh tokens.
