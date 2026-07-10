@@ -39,6 +39,7 @@ class DataAnalysis:
         self.fastest_meters(df, 100)
         self.fastest_meters(df, 500)
         self.fastest_meters(df, 1000)
+        self.fastest_meters(df, 1,852)  # 1 nautical mile in meters
         
         return self.results
 

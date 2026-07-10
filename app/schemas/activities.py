@@ -42,9 +42,11 @@ class Summary(BaseModel):
     time_spent_planing: int | None = Field(..., description="Total time spent in planing SpeedZone (s)")
     total_session_count:int | None = Field(..., description="Total lifetime sessions")
     top_speed: float = Field(..., description="All time stop speed (m/s)")
+    top_speed_avg_5_s: float = Field(..., description="All time top 5 second average speed (m/s)")
     fastest_100: float | None = Field(..., description="All time fastest 100m (s)")
     fastest_500: float | None = Field(..., description="All time fastest 500m (s)")
     fastest_1000: float | None = Field(..., description="All time fastest 1000m (s)")
+    fastest_1852: float | None = Field(..., description="All time fastest Nautica mile (s)")
 
 
 class Sync(BaseModel):
