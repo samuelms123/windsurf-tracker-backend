@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Security
+from fastapi import APIRouter
 from app.services import strava_service
 from app.schemas.activities import Sync
 from app.services.auth_service import get_valid_access_token

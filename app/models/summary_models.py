@@ -20,12 +20,14 @@ def update_summary(summary: Summary):
             },
 
             "$max": {
-                "top_speed": summary.top_speed
+                "top_speed": summary.top_speed,
+                "top_speed_avg_5_s": summary.top_speed_avg_5_s
             },
             "$min": {
                 "fastest_100": summary.fastest_100,
                 "fastest_500": summary.fastest_500,
-                "fastest_1000": summary.fastest_1000
+                "fastest_1000": summary.fastest_1000,
+                "fastest_1852": summary.fastest_1852
             }
         },
         upsert=True,
