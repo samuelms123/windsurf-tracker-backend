@@ -39,6 +39,7 @@ class DataAnalysis:
         self.fastest_meters(df, 100)
         self.fastest_meters(df, 500)
         self.fastest_meters(df, 1000)
+        self.fastest_meters(df, 1852)  # 1 nautical mile in meters
         
         return self.results
 
@@ -71,50 +72,6 @@ class DataAnalysis:
         zones = pd.cut(df['velocity_smooth'], bins=bins, labels=labels, include_lowest=True)
         self.results['speed_zones'] = zones.value_counts().to_dict()
 
-    
-           
-    ## this is a bottleneck dont use and do better one
-    def top_acceleration(self, df: pd.DataFrame, start_speed, end_speed): # speed in m/s
-        print("started to calculate accelerations")
-        best_time = None
-        i = 0
-        velocities = df['velocity_smooth'].values
-        times = df['time'].values
-        
-        while i < (len(df)):
-            
-            if velocities[i] >= start_speed:
-                start_time = times[i]
-                counter = 0
-                
-                for j in range(i + 1, len(df)):
-                    velocity = velocities[j]
-                    
-                    # check if the velocity falls under starting speed for more than 5s
-                    if velocity < start_speed:
-                        counter += 1
-                        if counter > 5:
-                            i = j
-                            break # return back to i loop to search for a starting point
-                    else:
-                        counter = 0
-                        
-                    if velocity >= end_speed:
-                        end_time = times[j]
-                        time = end_time - start_time
-                        
-                        if best_time is None or time < best_time:
-                            best_time = time
-                    
-                        i = j
-                        break
-                while i < len(velocities) and velocities[i] > start_speed:
-                    i += 1
-                    
-            else:
-                i += 1
-        
-        self.results[f'acceleration_to_{end_speed}'] = float(round(best_time, 2)) if best_time is not None else None
         
 
     def top_speed_rolling_avg(self, df):

@@ -16,9 +16,11 @@ def calculate_summary(activities: list[dict]) -> Summary:
         time_spent_planing=0,
         total_session_count=0,
         top_speed=0,
+        top_speed_avg_5_s=0,
         fastest_100=None,
         fastest_500=None,
-        fastest_1000=None
+        fastest_1000=None,
+        fastest_1852=None
 
     )
 
@@ -28,8 +30,10 @@ def calculate_summary(activities: list[dict]) -> Summary:
         summary.time_spent_planing += activity.get('speed_zones').get('planing')
         summary.total_session_count += 1
         summary.top_speed = max(summary.top_speed, activity.get('max_speed'))
+        summary.top_speed_avg_5_s = max(summary.top_speed_avg_5_s, activity.get('max_speed_avg_5_s'))
         summary.fastest_100 = safe_min(summary.fastest_100, activity.get('fastest_100'))
         summary.fastest_500 = safe_min(summary.fastest_500, activity.get('fastest_500'))
         summary.fastest_1000 = safe_min(summary.fastest_1000, activity.get('fastest_1000'))
+        summary.fastest_1852 = safe_min(summary.fastest_1852, activity.get('fastest_1852'))
 
     return summary
